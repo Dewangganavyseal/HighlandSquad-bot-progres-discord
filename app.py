@@ -126,14 +126,21 @@ def run_bot():
 
         msg_data = load_data(PUBLIC_MESSAGE_ID_FILE)
         msg_id = msg_data.get("message_id")
+        
         try:
-            msg = await channel.fetch_message(msg_id) if msg_id else None
-            if msg: await msg.edit(embed=embed)
-            else: raise discord.NotFound("No message ID")
+            # Jika tidak ada ID, sengaja picu error agar masuk ke blok except
+            if not msg_id:
+                raise discord.NotFound("No message ID stored, creating new message.")
+            
+            msg = await channel.fetch_message(msg_id)
+            await msg.edit(embed=embed)
+
         except (discord.NotFound, discord.HTTPException):
+            # Blok ini sekarang menangani kasus di mana pesan terhapus ATAU saat pertama kali dijalankan
             try:
                 msg = await channel.send(embed=embed)
                 save_data({"message_id": msg.id}, PUBLIC_MESSAGE_ID_FILE)
+                print(f"Membuat pesan progres baru dengan ID: {msg.id}")
             except discord.Forbidden:
                 print(f"Error: Bot tidak memiliki izin untuk mengirim pesan di channel {PROGRESS_CHANNEL_ID}.")
 
