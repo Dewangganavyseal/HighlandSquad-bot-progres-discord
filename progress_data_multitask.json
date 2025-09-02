@@ -1,0 +1,156 @@
+{
+    "fase 1: alpha - core gameplay loop": {
+        "active": true,
+        "categories": {
+            "3d asset & environment": {
+                "subtasks": {
+                    "map gunung: buat terrain dasar untuk gunung bromo (tier 1)": true,
+                    "rumput kering": true,
+                    "rumput hijau": true,
+                    "tekstur pasir": true,
+                    "tekstur tanah": true,
+                    "tekstur batu": true,
+                    "bebatuan": true,
+                    "model semak belukar": true,
+                    "kawah": true,
+                    "tumbuhan obat obatan 1": false,
+                    "tumbuhan obat obatan 2": false,
+                    "tumbuhan obat obatan 3": false,
+                    "sampah 1 an": true,
+                    "sampah tumpukan": false,
+                    "danau": false,
+                    "campfire": false,
+                    "bunga edelweis": false
+                },
+                "note": "GG gemink gk gaes?"
+            },
+            "3d model karakter dasar saat menggunakan equipment": {
+                "subtasks": {
+                    "tas carrier": false,
+                    "ban lengan kapten": false
+                },
+                "note": ""
+            },
+            "3d animasi karakter": {
+                "subtasks": {
+                    "mengambil sampah, mengambil item resource": false,
+                    "attack kapak": false,
+                    "berjalan": true,
+                    "berlari": true,
+                    "loncat": true,
+                    "kedinginan": false,
+                    "memasak": false,
+                    "membuat obat": false,
+                    "repairing, crafting campfire,": false,
+                    "membungkuk keberatan beban": false,
+                    "mendorong": true,
+                    "menolong / menarik": false,
+                    "menggali": true
+                },
+                "note": ""
+            },
+            "3d model hewan": {
+                "subtasks": {
+                    "ular": false,
+                    "kalajengking": true,
+                    "kelelawar": false,
+                    "motocross": true
+                },
+                "note": ""
+            },
+            "animasi hewan": {
+                "subtasks": {
+                    "ular": false,
+                    "kalajengking": true,
+                    "kelelawar": false
+                },
+                "note": ""
+            },
+            "peralatan (versi common)": {
+                "subtasks": {
+                    "peta": false,
+                    "radio": false,
+                    "penjepit sampah": false,
+                    "kantong sampah": false,
+                    "tas medis": false,
+                    "dapur lapangan": false,
+                    "kapak": true,
+                    "sekop": true,
+                    "tenda": false,
+                    "tas carrier": false,
+                    "sepatu": false,
+                    "topi": false,
+                    "sarung tangan": false,
+                    "tongkat": false,
+                    "jacket": false
+                },
+                "note": ""
+            },
+            "3d model resource in game": {
+                "subtasks": {
+                    "botol minum": true,
+                    "snack": false,
+                    "log atau batang kayu": true,
+                    "ranting": true,
+                    "batu kecil": false,
+                    "buah berry": true,
+                    "tumbuhan obat": true,
+                    "obat": true,
+                    "makanan": false
+                },
+                "note": ""
+            },
+            "mekanik pemrograman": {
+                "subtasks": {
+                    "sistem berjalan": true,
+                    "sistem berlari": true,
+                    "sistem stamina": true,
+                    "sistem health": false,
+                    "sistem loncat": true,
+                    "sistem knock": false,
+                    "sistem ragdol saat diseret": true,
+                    "sistem mendorong": true,
+                    "sistem jalan melambat saat mengangkat beban sampah": false,
+                    "sistem tenggelam saat berada di pasir hisap": false,
+                    "sistem mengendarai motocross": false,
+                    "sistem ai hewan": false
+                },
+                "note": ""
+            },
+            "sfx yg sudah terpasang": {
+                "subtasks": {
+                    "berjalan di grass": false,
+                    "berjalan di bebatuan": false,
+                    "berjalan di pasir": false,
+                    "berjalan di lumpur": false,
+                    "digging": true,
+                    "choping": false,
+                    "motocross": false
+                },
+                "note": ""
+            },
+            "sfx": {
+                "subtasks": {
+                    "berjalan di bebatuan": true,
+                    "berjalan di grass": true,
+                    "berjalan di pasir": true,
+                    "berjalan di lumpur": true,
+                    "digging": true,
+                    "choping": true,
+                    "motorcross": false,
+                    "enemy attack": false,
+                    "attacking": false,
+                    "scorpion": false,
+                    "bat": false,
+                    "snake": false,
+                    "scorpion die": false,
+                    "bat die": false,
+                    "snake die": false,
+                    "snake walk": false,
+                    "bat fly": false
+                },
+                "note": ""
+            }
+        }
+    }
+}
