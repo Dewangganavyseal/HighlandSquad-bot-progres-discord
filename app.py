@@ -42,6 +42,8 @@ def save_data(data, file_path):
     with open(file_path, 'w', encoding='utf-8') as f: json.dump(data, f, indent=4)
 
 def trigger_bot_update():
+    # Log Diagnostik Ditambahkan
+    print(f"TRIGGER @ {datetime.now()}: Menulis pembaruan ke {UPDATE_QUEUE_FILE}")
     save_data({"update_needed": True, "timestamp": time.time()}, UPDATE_QUEUE_FILE)
 
 def seed_initial_data():
@@ -59,7 +61,7 @@ def seed_initial_data():
                 print(f"Gagal menyalin data awal: {e}")
 
 # ==============================================================================
-# BAGIAN KODE BOT DISCORD (Tidak ada perubahan di sini, sama seperti milik Tuan)
+# BAGIAN KODE BOT DISCORD
 # ==============================================================================
 def run_bot():
     intents = discord.Intents.default()
@@ -138,11 +140,15 @@ def run_bot():
 
     @tasks.loop(seconds=5.0)
     async def check_for_updates():
+        # Log Diagnostik Ditambahkan
+        print(f"CHECK @ {datetime.now()}: Memeriksa pembaruan di {UPDATE_QUEUE_FILE}")
         update_queue = load_data(UPDATE_QUEUE_FILE)
         if update_queue.get("update_needed"):
-            print("Perubahan terdeteksi dari web, memperbarui pesan Discord...")
+            # Log Diagnostik Ditambahkan
+            print(">>> PEMBARUAN DITEMUKAN! Memperbarui pesan Discord...")
             await update_public_message(bot)
             save_data({}, UPDATE_QUEUE_FILE)
+            print(">>> ANTRIAN DIBERSIHKAN.")
 
     @bot.event
     async def on_ready():
