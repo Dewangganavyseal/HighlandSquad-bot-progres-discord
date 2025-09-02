@@ -612,7 +612,6 @@ if __name__ == '__main__':
     print("======================================================")
     port = int(os.environ.get('PORT', 5000))
     app.run(host='0.0.0.0', port=port)
-```
 
 ### Panduan Migrasi Data (Sangat Penting)
 
@@ -669,3 +668,4 @@ Railway akan secara otomatis melakukan *deploy*.
 
 **Langkah Terakhir yang Sangat Penting:**
 Setelah Tuan yakin 100% datanya sudah ada di dasbor Railway, **kembali ke repositori GitHub Tuan dan hapus file `progress_data_multitask.json`**. Ini untuk mencegah data Tuan secara tidak sengaja tertimpa oleh versi lama di masa depan. Mulai sekarang, data Tuan hidup secara permanen di *volume* Railw
+
