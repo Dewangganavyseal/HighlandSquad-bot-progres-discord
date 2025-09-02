@@ -126,23 +126,25 @@ def run_bot():
 
         msg_data = load_data(PUBLIC_MESSAGE_ID_FILE)
         msg_id = msg_data.get("message_id")
+        message_to_edit = None
+
+        if msg_id:
+            try:
+                message_to_edit = await channel.fetch_message(msg_id)
+            except (discord.NotFound, discord.HTTPException):
+                print(f"Pesan lama dengan ID {msg_id} tidak ditemukan. Akan membuat pesan baru.")
+                message_to_edit = None
         
         try:
-            # Jika tidak ada ID, sengaja picu error agar masuk ke blok except
-            if not msg_id:
-                raise discord.NotFound("No message ID stored, creating new message.")
-            
-            msg = await channel.fetch_message(msg_id)
-            await msg.edit(embed=embed)
-
-        except (discord.NotFound, discord.HTTPException):
-            # Blok ini sekarang menangani kasus di mana pesan terhapus ATAU saat pertama kali dijalankan
-            try:
-                msg = await channel.send(embed=embed)
-                save_data({"message_id": msg.id}, PUBLIC_MESSAGE_ID_FILE)
-                print(f"Membuat pesan progres baru dengan ID: {msg.id}")
-            except discord.Forbidden:
-                print(f"Error: Bot tidak memiliki izin untuk mengirim pesan di channel {PROGRESS_CHANNEL_ID}.")
+            if message_to_edit:
+                await message_to_edit.edit(embed=embed)
+            else:
+                # Blok ini dijalankan jika msg_id tidak ada ATAU fetch_message gagal
+                new_msg = await channel.send(embed=embed)
+                save_data({"message_id": new_msg.id}, PUBLIC_MESSAGE_ID_FILE)
+                print(f"Membuat atau mengganti pesan progres. ID Baru: {new_msg.id}")
+        except discord.Forbidden:
+            print(f"Error: Bot tidak memiliki izin untuk mengirim/mengedit pesan di channel {PROGRESS_CHANNEL_ID}.")
 
 
     @tasks.loop(seconds=5.0)
