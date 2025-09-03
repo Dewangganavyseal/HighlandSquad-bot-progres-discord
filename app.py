@@ -47,16 +47,32 @@ def trigger_bot_update():
     save_data({"update_needed": True, "timestamp": time.time()}, UPDATE_QUEUE_FILE)
 
 def seed_initial_data():
-    """Menyalin data dari repositori ke volume pada saat dijalankan pertama kali."""
-    if DATA_DIR != ".":
+    """Menyalin data dari repositori ke volume HANYA PADA SAAT DIJALANKAN PERTAMA KALI."""
+    if DATA_DIR != ".": # Hanya berjalan di lingkungan hosting (seperti Railway)
+        # File penanda untuk mencegah seeding berulang kali
+        SEED_FLAG_FILE = os.path.join(DATA_DIR, ".seed_complete")
+        
+        # Jika file penanda sudah ada, jangan lakukan apa-apa
+        if os.path.exists(SEED_FLAG_FILE):
+            print("Seeding data awal sudah pernah dilakukan, melewati...")
+            return
+
+        # Jika tidak ada penanda, lanjutkan proses seeding
         volume_file_path = PROGRESS_FILE
         repo_file_path = os.path.join(".", LOCAL_PROGRESS_FILE_FOR_SEEDING)
-        if (not os.path.exists(volume_file_path) or os.path.getsize(volume_file_path) == 0) and os.path.exists(repo_file_path):
+        
+        if os.path.exists(repo_file_path):
             print("Data awal ditemukan di repositori, menyalin ke volume...")
             try:
                 initial_data = load_data(repo_file_path)
                 save_data(initial_data, volume_file_path)
                 print("Data awal berhasil disalin.")
+                
+                # Buat file penanda setelah seeding berhasil
+                with open(SEED_FLAG_FILE, 'w') as f:
+                    f.write(str(datetime.now()))
+                print(f"File penanda seeding dibuat di {SEED_FLAG_FILE}")
+
             except Exception as e:
                 print(f"Gagal menyalin data awal: {e}")
 
@@ -74,7 +90,10 @@ def run_bot():
 
     def generate_progress_bar(percentage):
         filled_blocks = int(round(percentage / 5))
-        return '🟩' * filled_blocks + '⬜' * (20 - filled_blocks)
+        empty_blocks = 20 - filled_blocks
+        # Menggunakan karakter khusus (zero-width space) untuk perataan
+        return '🟩' * filled_blocks + '⬜' * empty_blocks + '\u200b'
+
 
     def get_color_from_percentage(percentage):
         percentage = max(0, min(100, percentage))
@@ -112,17 +131,36 @@ def run_bot():
                 categories = task_data.get("categories", {})
                 overall_progress = round(sum(calculate_percentage(cat.get("subtasks", {})) for cat in categories.values()) / len(categories)) if categories else 0
                 
+                # Batas field Discord adalah 25. Kita sisakan 1 untuk header proyek.
+                MAX_FIELDS = 24
+                
+                # Buat header proyek sebagai field pertama
+                embed.add_field(
+                    name=f"__**proyek: {task_name.capitalize()} ({overall_progress}%)**__",
+                    value="\u200b", # Karakter kosong untuk spasi
+                    inline=False
+                )
+
                 progress_details = []
                 for cat_name, data in sorted(categories.items()):
                     percentage = calculate_percentage(data.get("subtasks", {}))
                     bar = generate_progress_bar(percentage)
+                    # \u200b adalah zero-width space untuk memastikan perataan
                     progress_details.append(f"**{cat_name.capitalize()}**: {percentage}%\n{bar}")
-                
-                embed.add_field(
-                    name=f"__**proyek: {task_name.capitalize()} ({overall_progress}%)**__",
-                    value="\n\n".join(progress_details) if progress_details else "Belum ada kategori.",
-                    inline=False
-                )
+
+                # Gabungkan beberapa kategori ke dalam satu field jika melebihi batas
+                current_field_value = ""
+                for detail in progress_details:
+                    # Cek apakah penambahan detail baru akan melebihi batas karakter field (1024)
+                    if len(current_field_value) + len(detail) > 1024 or len(embed.fields) >= 25:
+                        embed.add_field(name="\u200b", value=current_field_value, inline=False)
+                        current_field_value = ""
+                    
+                    current_field_value += detail + "\n\n"
+
+                if current_field_value:
+                    embed.add_field(name="\u200b", value=current_field_value, inline=False)
+
 
         msg_data = load_data(PUBLIC_MESSAGE_ID_FILE)
         msg_id = msg_data.get("message_id")
