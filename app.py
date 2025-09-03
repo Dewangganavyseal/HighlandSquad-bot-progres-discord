@@ -91,7 +91,7 @@ def run_bot():
     def generate_progress_bar(percentage):
         filled_blocks = int(round(percentage / 5))
         empty_blocks = 20 - filled_blocks
-        # Menggunakan karakter khusus (zero-width space) untuk perataan
+        # Menggunakan karakter khusus (zero-width space) untuk perataan dan mencegah pemotongan
         return '🟩' * filled_blocks + '⬜' * empty_blocks + '\u200b'
 
 
@@ -125,41 +125,36 @@ def run_bot():
             avg_progress = round(sum(all_overall_progress) / len(all_overall_progress)) if all_overall_progress else 0
             
             dynamic_color = get_color_from_percentage(avg_progress)
-            embed = discord.Embed(title="🚀 Progress Pengembangan Game 🚀", description="Berikut adalah progres dari semua proyek yang aktif.", color=dynamic_color)
+            embed = discord.Embed(title="🚀 Progress Pengembangan Game 🚀", color=dynamic_color)
             
+            description_parts = []
             for task_name, task_data in sorted(active_tasks.items()):
                 categories = task_data.get("categories", {})
                 overall_progress = round(sum(calculate_percentage(cat.get("subtasks", {})) for cat in categories.values()) / len(categories)) if categories else 0
                 
-                # Batas field Discord adalah 25. Kita sisakan 1 untuk header proyek.
-                MAX_FIELDS = 24
-                
-                # Buat header proyek sebagai field pertama
-                embed.add_field(
-                    name=f"__**proyek: {task_name.capitalize()} ({overall_progress}%)**__",
-                    value="\u200b", # Karakter kosong untuk spasi
-                    inline=False
-                )
+                # Menambahkan header proyek ke deskripsi
+                description_parts.append(f"__**PROYEK: {task_name.upper()}**__")
+                description_parts.append(f"# {overall_progress}%")
+                description_parts.append("\u200b") # Spasi kosong
 
-                progress_details = []
                 for cat_name, data in sorted(categories.items()):
                     percentage = calculate_percentage(data.get("subtasks", {}))
                     bar = generate_progress_bar(percentage)
-                    # \u200b adalah zero-width space untuk memastikan perataan
-                    progress_details.append(f"**{cat_name.capitalize()}**: {percentage}%\n{bar}")
+                    description_parts.append(f"**{cat_name.capitalize()}**: {percentage}%")
+                    description_parts.append(bar)
+                
+                description_parts.append("\n---\n") # Pemisah antar proyek
 
-                # Gabungkan beberapa kategori ke dalam satu field jika melebihi batas
-                current_field_value = ""
-                for detail in progress_details:
-                    # Cek apakah penambahan detail baru akan melebihi batas karakter field (1024)
-                    if len(current_field_value) + len(detail) > 1024 or len(embed.fields) >= 25:
-                        embed.add_field(name="\u200b", value=current_field_value, inline=False)
-                        current_field_value = ""
-                    
-                    current_field_value += detail + "\n\n"
+            if description_parts:
+                description_parts.pop() # Hapus pemisah terakhir
 
-                if current_field_value:
-                    embed.add_field(name="\u200b", value=current_field_value, inline=False)
+            final_description = "\n".join(description_parts)
+            
+            # Memastikan tidak melebihi batas karakter deskripsi Discord
+            if len(final_description) > 4096:
+                final_description = final_description[:4093] + "..."
+            
+            embed.description = final_description
 
 
         msg_data = load_data(PUBLIC_MESSAGE_ID_FILE)
@@ -374,7 +369,7 @@ HTML_TEMPLATE = """
         
         function showNewTaskModal() {
             const taskName = prompt("Masukkan nama untuk tugas/proyek baru:");
-            if (taskName && taskName.trim()) { createNewTask(taskName.trim()); }
+            if (taskName && task_name.trim()) { createNewTask(taskName.trim()); }
         }
         function showTaskSettings(taskName, isActive) {
             const action = prompt(`Pengaturan untuk "${taskName}":\n1: ${isActive ? 'Nonaktifkan' : 'Aktifkan'}\n2: Ganti Nama\n3: Hapus Tugas`);
