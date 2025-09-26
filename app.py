@@ -130,23 +130,42 @@ def run_bot():
             description_parts = []
             for task_name, task_data in sorted(active_tasks.items()):
                 categories = task_data.get("categories", {})
-                overall_progress = round(sum(calculate_percentage(cat.get("subtasks", {})) for cat in categories.values()) / len(categories)) if categories else 0
+                if not categories: continue
+
+                overall_progress = round(sum(calculate_percentage(cat.get("subtasks", {})) for cat in categories.values()) / len(categories))
                 
                 # Menambahkan header proyek ke deskripsi
                 description_parts.append(f"__**PROYEK: {task_name.upper()}**__")
-                description_parts.append(f"# {overall_progress}%")
+                description_parts.append(f"> **Total Progres: {overall_progress}%**")
                 description_parts.append("\u200b") # Spasi kosong
 
                 for cat_name, data in sorted(categories.items()):
-                    percentage = calculate_percentage(data.get("subtasks", {}))
+                    subtasks = data.get("subtasks", {})
+                    percentage = calculate_percentage(subtasks)
                     bar = generate_progress_bar(percentage)
-                    description_parts.append(f"**{cat_name.capitalize()}**: {percentage}%")
+                    
+                    description_parts.append(f"**{cat_name.capitalize()}** ({percentage}%)")
                     description_parts.append(bar)
+                    
+                    # Menambahkan daftar subtugas
+                    if subtasks:
+                        for subtask_name, is_complete in sorted(subtasks.items()):
+                            subtask_text = subtask_name.capitalize()
+                            if is_complete:
+                                description_parts.append(f"✅ ~~{subtask_text}~~")
+                            else:
+                                description_parts.append(f"☑️ {subtask_text}")
+                    
+                    description_parts.append("\u200b") # Spasi antar kategori
                 
                 description_parts.append("\n---\n") # Pemisah antar proyek
 
             if description_parts:
-                description_parts.pop() # Hapus pemisah terakhir
+                # Hapus pemisah '---' dan spasi kosong terakhir agar rapi
+                if description_parts[-1] == "\n---\n":
+                    description_parts.pop()
+                if description_parts and description_parts[-1] == "\u200b":
+                    description_parts.pop()
 
             final_description = "\n".join(description_parts)
             
@@ -369,7 +388,7 @@ HTML_TEMPLATE = """
         
         function showNewTaskModal() {
             const taskName = prompt("Masukkan nama untuk tugas/proyek baru:");
-            if (taskName && task_name.trim()) { createNewTask(taskName.trim()); }
+            if (taskName && taskName.trim()) { createNewTask(taskName.trim()); }
         }
         function showTaskSettings(taskName, isActive) {
             const action = prompt(`Pengaturan untuk "${taskName}":\n1: ${isActive ? 'Nonaktifkan' : 'Aktifkan'}\n2: Ganti Nama\n3: Hapus Tugas`);
